@@ -79,6 +79,7 @@ message.addSink(sink);
 env.execute();    
   
 结果：
+        
 └── 2022-01-01
         
     ├── aa
