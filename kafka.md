@@ -1,6 +1,6 @@
 #Kafka linux 安装
 
-wget https://dlcdn.apache.org/kafka/3.1.0/kafka_2.12-3.1.0.tgz。
+wget https://dlcdn.apache.org/kafka/3.1.0/kafka_2.12-3.1.0.tgz  
 tar -xf kafka_2.12-3.1.0.tgz 
 
 启动： 
