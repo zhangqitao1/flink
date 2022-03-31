@@ -79,7 +79,6 @@ final StreamingFileSink sink = StreamingFileSink
         .forRowFormat(new Path("./outputPath"), new SimpleStringEncoder<String>("UTF-8"))
         .withBucketAssigner(new CostomBucketAssigner())  
         .withRollingPolicy(rolling)
-        .withRollingPolicy(OnCheckpointRollingPolicy.build())
         .withOutputFileConfig(new OutputFileConfig("a",".csv"))  
         .build();  
 
