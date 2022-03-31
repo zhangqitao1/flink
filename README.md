@@ -4,6 +4,8 @@
 
 ```java
 StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+env.enableCheckpointing(TimeUnit.SECONDS.toMillis(10));
+
 Properties properties = new Properties();
 properties.setProperty("bootstrap.servers", "hadoop1:9092");
 properties.setProperty("group.id", "aa");
