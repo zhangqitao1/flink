@@ -21,7 +21,30 @@ final DefaultRollingPolicy<Object, Object> rolling = DefaultRollingPolicy.builde
 
 final StreamingFileSink sink = StreamingFileSink
         .forRowFormat(new Path("./outputPath"), new SimpleStringEncoder<String>("UTF-8"))
-        .withBucketAssigner(new DateTimeBucketAssigner<>()) 
+        /**
+         * 设置桶分配政策
+         * DateTimeBucketAssigner --默认的桶分配政策，默认基于时间的分配器，每小时产生一个桶，格式如下yyyy-MM-dd--HH
+         * BasePathBucketAssigner ：将所有部分文件（part file）存储在基本路径中的分配器（单个全局桶）
+         */
+        .withBucketAssigner(new DateTimeBucketAssigner())
+
+        /**
+         * 有三种滚动政策
+         *  CheckpointRollingPolicy
+         *  DefaultRollingPolicy
+         *  OnCheckpointRollingPolicy 
+
+         * 滚动策略决定了写出文件的状态变化过程
+         * 1. In-progress ：当前文件正在写入中
+         * 2. Pending ：当处于 In-progress 状态的文件关闭（closed）了，就变为 Pending 状态
+         * 3. Finished ：在成功的 Checkpoint 后，Pending 状态将变为 Finished 状态
+         *
+         * 观察到的现象
+         * 1.会根据本地时间和时区，先创建桶目录
+         * 2.文件名称规则：part-<subtaskIndex>-<partFileIndex>
+         * 3.在macos中默认不显示隐藏文件，需要显示隐藏文件才能看到处于In-progress和Pending状态的文件，因为文件是按照.开头命名的
+         *
+         */
         .withRollingPolicy(rolling)
         .build();  
 
