@@ -21,6 +21,7 @@ final DefaultRollingPolicy<Object, Object> rolling = DefaultRollingPolicy.builde
 
 final StreamingFileSink sink = StreamingFileSink
         .forRowFormat(new Path("./outputPath"), new SimpleStringEncoder<String>("UTF-8"))
+        .withBucketAssigner(new DateTimeBucketAssigner<>()) 
         .withRollingPolicy(rolling)
         .build();  
 
