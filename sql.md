@@ -22,7 +22,7 @@ http://127.0.0.1:8081/
 
 pipline.txt
 ==========
-sql文件：
+sql文件：（提交任务从kafka中实时读取json数据，写入mysql表中）
 ```sql
 SET pipeline.name=kafka_json_mysql;  
 SET parallelism.default=1;  
