@@ -7,6 +7,8 @@
 java8、hadoop、kafka
 
 https://hudi.apache.org/docs/flink-quick-start-guide/
+0、下载flink
+wget https://dlcdn.apache.org/flink/flink-1.13.6/flink-1.13.6-bin-scala_2.11.tgz
 
 1、下载hudi，放入flink-1.13.6/lib下
 https://repo.maven.apache.org/maven2/org/apache/hudi/hudi-flink-bundle_2.11/0.10.0/hudi-flink-bundle_2.11-0.10.0.jar
@@ -32,11 +34,13 @@ state.backend.incremental: true
 4、启动flink
 bin/start-cluster.sh
 
+5、UI
+http://localhost:8081/
 
 ```
 
-批处理
-======
+批量数据写入Hudi
+==============
 ```
 bin/sql-client.sh
 
@@ -50,7 +54,7 @@ CREATE TABLE t1(
 PARTITIONED BY (`partition`)
 WITH (
   'connector' = 'hudi',
-  'path' = '/hudi/t11' ,
+  'path' = 'hdfs://127.0.0.1:9000/hudi/t11' ,
   'table.type' = 'MERGE_ON_READ',
   'write.tasks' = '1',
   'compaction.tasks' = '1' 
@@ -84,7 +88,7 @@ select * from t1;
 ```
 
 
-流式查询
+流式查询数据
 =======
 ```
 CREATE TABLE t3(
@@ -97,13 +101,15 @@ CREATE TABLE t3(
 PARTITIONED BY (`partition`)
 WITH (
   'connector' = 'hudi',
-  'path' = '/hudi/t11' ,
+  'path' = 'hdfs://127.0.0.1:9000/hudi/t11' ,
   'table.type' = 'MERGE_ON_READ',
   'read.tasks' = '1',
   'read.streaming.enabled' = 'true',
   'read.streaming.start-commit' = '20210316134557',
   'read.streaming.check-interval' = '4'
 );
+
+执行select * from t3时会4秒刷新一次数据展示
 
 ```
 
@@ -133,6 +139,7 @@ Kafka消息
 {"event_id":"2","appid":"2"}
 
 
+创建hudi sink表
 CREATE TABLE hudi_test(
   event_id STRING PRIMARY KEY NOT ENFORCED,
   appid STRING  
@@ -140,7 +147,7 @@ CREATE TABLE hudi_test(
 PARTITIONED BY (`appid`)
 WITH (
   'connector' = 'hudi',
-  'path' = '/hudi/test' ,
+  'path' = 'hdfs://127.0.0.1:9000/hudi/test' ,
   'table.type' = 'MERGE_ON_READ',
   'write.operation' = 'upsert',
   'hoodie.datasource.write.recordkey.field' ='event_id', 
@@ -154,7 +161,7 @@ insert into hudi_test  select event_id,appid from kafka_test;
 
 
 
-
+创建流式读取hudi表
 CREATE TABLE hudi_test_streaming(
   event_id STRING PRIMARY KEY NOT ENFORCED,
   appid STRING 
@@ -162,7 +169,7 @@ CREATE TABLE hudi_test_streaming(
 PARTITIONED BY (`appid`)
 WITH (
   'connector' = 'hudi',
-  'path' = '/hudi/test' ,
+  'path' = 'hdfs://127.0.0.1:9000/hudi/test' ,
   'table.type' = 'MERGE_ON_READ',
   'read.tasks' = '1',
   'read.streaming.enabled' = 'true',
