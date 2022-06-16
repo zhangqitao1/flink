@@ -11,7 +11,19 @@ https://repo.maven.apache.org/maven2/org/apache/hudi/hudi-flink-bundle_2.11/0.10
 export HADOOP_CLASSPATH=`$HADOOP_HOME/bin/hadoop classpath`
 
 3、配置flink
-/conf/flink-conf.yaml, add config option taskmanager.numberOfTaskSlots: 4
+vim /conf/flink-conf.yaml
+
+jobmanager.rpc.address: localhost
+jobmanager.memory.process.size: 1024m
+taskmanager.memory.process.size: 2048m
+taskmanager.numberOfTaskSlots: 4
+classloader.check-leaked-classloader: false
+classloader.resolve-order: parent-first
+execution.checkpointing.interval: 3000
+state.backend: rocksdb
+state.checkpoints.dir: hdfs://127.0.0.1:9000/flink/flink-checkpoints
+state.savepoints.dir: hdfs://127.0.0.1:9000/flink/flink-savepoints
+state.backend.incremental: true
 
 4、启动flink
 bin/start-cluster.sh
@@ -145,7 +157,7 @@ CREATE TABLE hudi_test_streaming(
 PARTITIONED BY (`appid`)
 WITH (
   'connector' = 'hudi',
-  'path' = '/hudi/test10' ,
+  'path' = '/hudi/test' ,
   'table.type' = 'MERGE_ON_READ',
   'read.tasks' = '1',
   'read.streaming.enabled' = 'true',
@@ -155,6 +167,60 @@ WITH (
 
 
 select * from hudi_test_streaming
+
+
+hdfs dfs -ls -R /hudi/test
+
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/.aux
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/.aux/.bootstrap
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/.aux/.bootstrap/.fileids
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/.aux/.bootstrap/.partitions
+-rw-r--r--   1 root supergroup       1487 2022-06-16 04:03 /hudi/test/.hoodie/.aux/20220616040336832.compaction.requested
+-rw-r--r--   1 root supergroup       1557 2022-06-16 04:04 /hudi/test/.hoodie/.aux/20220616040436264.compaction.requested
+-rw-r--r--   1 root supergroup       1495 2022-06-16 04:04 /hudi/test/.hoodie/.aux/20220616040448664.compaction.requested
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/.temp
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/.temp/20220616040336832
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/.temp/20220616040336832/2
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/.temp/20220616040336832/2/e2cb2f8b-fd13-4f67-ae16-404288d2c67c_0-1-0_20220616040336832.parquet.marker.CREATE
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/.temp/20220616040436264
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/.temp/20220616040436264/2
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/.temp/20220616040436264/2/e2cb2f8b-fd13-4f67-ae16-404288d2c67c_0-1-0_20220616040436264.parquet.marker.MERGE
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/.temp/20220616040448664
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/.temp/20220616040448664/tsdfggxxx
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/.temp/20220616040448664/tsdfggxxx/a3144cbb-55f8-46e6-a7cc-d0f963ad6e3e_0-1-0_20220616040448664.parquet.marker.CREATE
+-rw-r--r--   1 root supergroup       1741 2022-06-16 04:03 /hudi/test/.hoodie/20220616040307872.deltacommit
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/20220616040307872.deltacommit.inflight
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/20220616040307872.deltacommit.requested
+-rw-r--r--   1 root supergroup       1579 2022-06-16 04:03 /hudi/test/.hoodie/20220616040336832.commit
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/20220616040336832.compaction.inflight
+-rw-r--r--   1 root supergroup       1487 2022-06-16 04:03 /hudi/test/.hoodie/20220616040336832.compaction.requested
+-rw-r--r--   1 root supergroup       1808 2022-06-16 04:04 /hudi/test/.hoodie/20220616040336900.deltacommit
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/20220616040336900.deltacommit.inflight
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/20220616040336900.deltacommit.requested
+-rw-r--r--   1 root supergroup       1591 2022-06-16 04:04 /hudi/test/.hoodie/20220616040436264.commit
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/20220616040436264.compaction.inflight
+-rw-r--r--   1 root supergroup       1557 2022-06-16 04:04 /hudi/test/.hoodie/20220616040436264.compaction.requested
+-rw-r--r--   1 root supergroup       1780 2022-06-16 04:04 /hudi/test/.hoodie/20220616040436328.deltacommit
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/20220616040436328.deltacommit.inflight
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/20220616040436328.deltacommit.requested
+-rw-r--r--   1 root supergroup       1618 2022-06-16 04:04 /hudi/test/.hoodie/20220616040448664.commit
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/20220616040448664.compaction.inflight
+-rw-r--r--   1 root supergroup       1495 2022-06-16 04:04 /hudi/test/.hoodie/20220616040448664.compaction.requested
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/20220616040449535.deltacommit.inflight
+-rw-r--r--   1 root supergroup          0 2022-06-16 04:04 /hudi/test/.hoodie/20220616040449535.deltacommit.requested
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:03 /hudi/test/.hoodie/archived
+-rw-r--r--   1 root supergroup        540 2022-06-16 04:03 /hudi/test/.hoodie/hoodie.properties
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/2
+-rw-r--r--   1 root supergroup        720 2022-06-16 04:03 /hudi/test/2/.e2cb2f8b-fd13-4f67-ae16-404288d2c67c_20220616040307872.log.1_0-1-0
+-rw-r--r--   1 root supergroup        720 2022-06-16 04:04 /hudi/test/2/.e2cb2f8b-fd13-4f67-ae16-404288d2c67c_20220616040336832.log.1_0-1-0
+-rw-r--r--   1 root supergroup         96 2022-06-16 04:03 /hudi/test/2/.hoodie_partition_metadata
+-rw-r--r--   1 root supergroup     434250 2022-06-16 04:03 /hudi/test/2/e2cb2f8b-fd13-4f67-ae16-404288d2c67c_0-1-0_20220616040336832.parquet
+-rw-r--r--   1 root supergroup     434250 2022-06-16 04:04 /hudi/test/2/e2cb2f8b-fd13-4f67-ae16-404288d2c67c_0-1-0_20220616040436264.parquet
+drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/tsdfggxxx
+-rw-r--r--   1 root supergroup        806 2022-06-16 04:04 /hudi/test/tsdfggxxx/.a3144cbb-55f8-46e6-a7cc-d0f963ad6e3e_20220616040436328.log.1_0-1-0
+-rw-r--r--   1 root supergroup         96 2022-06-16 04:04 /hudi/test/tsdfggxxx/.hoodie_partition_metadata
+-rw-r--r--   1 root supergroup     434886 2022-06-16 04:04 /hudi/test/tsdfggxxx/a3144cbb-55f8-46e6-a7cc-d0f963ad6e3e_0-1-0_20220616040448664.parquet
 ```
 
 
