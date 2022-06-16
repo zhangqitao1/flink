@@ -1,6 +1,8 @@
 配置指南
 =========
 ```
+环境要求：
+java8、hadoop、kafka
 
 https://hudi.apache.org/docs/flink-quick-start-guide/
 
