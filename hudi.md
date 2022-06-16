@@ -1,3 +1,5 @@
+
+
 配置指南
 =========
 ```
@@ -237,6 +239,41 @@ drwxr-xr-x   - root supergroup          0 2022-06-16 04:04 /hudi/test/tsdfggxxx
 
 
 
+spark 查询hudi
+=========
+```
+下载spark
+wget https://dlcdn.apache.org/spark/spark-3.2.1/spark-3.2.1-bin-hadoop3.2.tgz
 
+bin/spark-shell \
+  --packages org.apache.hudi:hudi-spark3.2-bundle_2.12:0.11.0 \
+  --conf 'spark.serializer=org.apache.spark.serializer.KryoSerializer' \
+  --conf 'spark.sql.catalog.spark_catalog=org.apache.spark.sql.hudi.catalog.HoodieCatalog' \
+  --conf 'spark.sql.extensions=org.apache.spark.sql.hudi.HoodieSparkSessionExtension'
+
+
+scala> spark.read.format("hudi").load("hdfs://127.0.0.1:9000/hudi/test12").createOrReplaceTempView("hudi")
+
+scala> spark.sql("select * from hudi").show()
+ 
+|_hoodie_commit_time|_hoodie_commit_seqno|  _hoodie_record_key|_hoodie_partition_path|   _hoodie_file_name|            event_id|    appid|
++-------------------+--------------------+--------------------+----------------------+--------------------+--------------------+---------+
+|  20220616061627621|20220616061627621...|                   4|                   411|3088e6f7-c37a-454...|                   4|      411|
+|  20220616061615223|20220616061615223...|                   1|                   211|9f436e03-727b-4d7...|                   1|      211|
+|  20220616061540094|20220616061540094...|                   2|                  2333|425a26ad-6e36-418...|                   2|     2333|
+|  20220616040448664|20220616040448664...|dadsfadsfasdfsdfa...|             tsdfggxxx|a3144cbb-55f8-46e...|dadsfadsfasdfsdfa...|tsdfggxxx|
++-------------------+--------------------+--------------------+----------------------+--------------------+--------------------+---------+
+
+
+scala> spark.sql("select event_id,appid  from hudi").show()
++--------------------+---------+
+|            event_id|    appid|
++--------------------+---------+
+|                   4|      411|
+|                   1|      211|
+|                   2|     2333|
+|dadsfadsfasdfsdfa...|tsdfggxxx|
++--------------------+---------+
+```
 
 
