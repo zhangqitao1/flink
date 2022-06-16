@@ -109,6 +109,7 @@ Kafka to hudi
 1、下载kafka包，放入flink-1.13.6/lib下
 https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka_2.11/1.13.6/flink-sql-connector-kafka_2.11-1.13.6.jar
 
+2、bin/sql-client.sh
 CREATE TABLE kafka_test (
   event_id STRING, 
   appid STRING 
@@ -167,6 +168,14 @@ WITH (
 
 
 select * from hudi_test_streaming
+
+```
+
+
+
+查看hudi文件
+==========
+```
 
 
 hdfs dfs -ls -R /hudi/test
